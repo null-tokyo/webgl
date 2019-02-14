@@ -1,0 +1,26 @@
+{
+    "base": {
+        "site": "//example.com", 
+        "url": "//example.com",
+        "title": "Create by @null_tokyo",
+        "separator": " | ", 
+        "description": "ディスクリプション",
+        "ogType": "website",
+        "ogLocale": "ja_JP",
+        "twType": "summary",
+        "twSite": "@account"
+    },
+    "pages": {
+        "index": {
+            "title": "TOPページ",
+            "description": "TOPページのディスクリプション",
+            "keywords": "TOPページのキーワード"
+        },
+        "about": {
+            "url": "/about",
+            "title": "ABOUT",
+            "description": "ABOUTのディスクリプション",
+            "keywords": "ABOUTページのキーワード"
+        }
+    }
+}

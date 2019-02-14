@@ -1,0 +1,22 @@
+body {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+    //antialiased,subpixel-antialiased,none
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-smoothing: antialiased;
+    //auto,optimizeSpeed,optimizeLegibility,geometricPrecision
+    text-rendering: auto;
+    font-size: 14px;
+    font-family: $font-family-base;
+    color: $color-text;
+    background-color: $color-base;
+  }
+  
+  a {
+    color: $color-main;
+    text-decoration: none;
+    &:hover {
+      text-decoration: none;
+    }
+  }
