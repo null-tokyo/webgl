@@ -1,16 +1,30 @@
 import * as THREE from 'three'
 import windowResize from '../util/windowResize'
+import Cubes from '../modules/Cubes'
+
+import vert from '../../glsl/modules/output.vert'
+import frag from '../../glsl/modules/output.frag'
 
 class WebGL {
     constructor() {
         this.width
         this.height
+        this.aspect
+        this.size
         this.$container
         this.renderer
         this.props
+        this.clock
     }
     init() {
+        this.render = () => this._render()
+
+        this.width = 2048
+        this.height = 2048
+        this.aspect = this.width / this.height
+        this.size = 32
         this.setProps()
+
         this.$container = document.getElementById('canvas')
         this.renderer = new THREE.WebGLRenderer({
             antialias: true,
@@ -21,11 +35,9 @@ class WebGL {
         this.renderer.setPixelRatio(this.props.pixelRatio)
         this.$container.appendChild(this.renderer.domElement)
 
+        this.clock = new THREE.Clock()
+
         this.scene = new THREE.Scene()
-        this.geometry = new THREE.BoxGeometry(100, 100, 100)
-        this.material = new THREE.MeshBasicMaterial({ color: 0x00ff00 })
-        this.cube = new THREE.Mesh(this.geometry, this.material)
-        this.scene.add(this.cube)
 
         this.camera = new THREE.PerspectiveCamera(
             this.props.fov,
@@ -40,9 +52,60 @@ class WebGL {
         this.camera.position.set(0, 0, cameraZ)
         this.camera.lookAt(this.scene.position)
 
+        windowResize.register(this)
+
+        this.cubes = new Cubes(this)
+
+        this.createPlane()
+
+        this.render()
+    }
+    createPlane() {
+        this.uniforms = {
+            uTex: { type: 't', value: this.cubes.fbo.texture },
+            uTime: { type: 'f', value: 0 },
+            uDelta: { type: 'f', value: 0 },
+        }
+        this.geometry = new THREE.PlaneBufferGeometry(
+            this.width,
+            this.height,
+            100,
+            100
+        )
+        this.material = new THREE.ShaderMaterial({
+            vertexShader: vert,
+            fragmentShader: frag,
+            uniforms: this.uniforms,
+        })
+        this.plane = new THREE.Mesh(this.geometry, this.material)
+
+        let scale =
+            windowResize.aspect > this.aspect
+                ? windowResize.width / this.width
+                : windowResize.height / this.height
+
+        this.plane.scale.x = scale
+        this.plane.scale.y = scale
+
+        this.scene.add(this.plane)
+    }
+    updateUniforms(time, delta) {
+        this.uniforms.uTime.value = time
+        this.uniforms.uDelta.value = delta
+    }
+    _render() {
+        this.renderer.clear()
+
+        let time = this.clock.elapsedTime
+        let delta = this.clock.getDelta()
+
+        this.updateUniforms(time, delta)
+
+        this.cubes.render()
+
         this.renderer.render(this.scene, this.camera)
 
-        windowResize.register(this)
+        requestAnimationFrame(this.render)
     }
     setProps() {
         let width = windowResize.width
@@ -74,6 +137,14 @@ class WebGL {
         this.camera.position.set(0, 0, cameraZ)
         this.camera.lookAt(this.scene.position)
         this.camera.updateProjectionMatrix()
+
+        let scale =
+            windowResize.aspect > this.aspect
+                ? windowResize.width / this.width
+                : windowResize.height / this.height
+
+        this.plane.scale.x = scale
+        this.plane.scale.y = scale
 
         this.renderer.render(this.scene, this.camera)
     }
