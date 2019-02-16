@@ -31,7 +31,7 @@ class WebGL {
             alpha: true,
         })
         this.renderer.setSize(this.props.width, this.props.height)
-        this.renderer.setClearColor(0xffffff, 0.0)
+        this.renderer.setClearColor(0x000000, 0.0)
         this.renderer.setPixelRatio(this.props.pixelRatio)
         this.$container.appendChild(this.renderer.domElement)
 
@@ -58,7 +58,9 @@ class WebGL {
 
         this.createPlane()
 
-        this.render()
+        setTimeout(() => {
+            this.render()
+        }, 1000)
     }
     createPlane() {
         this.uniforms = {
@@ -76,6 +78,7 @@ class WebGL {
             vertexShader: vert,
             fragmentShader: frag,
             uniforms: this.uniforms,
+            flatShading: true,
         })
         this.plane = new THREE.Mesh(this.geometry, this.material)
 
@@ -101,7 +104,7 @@ class WebGL {
 
         this.updateUniforms(time, delta)
 
-        this.cubes.render()
+        this.cubes.render(time, delta)
 
         this.renderer.render(this.scene, this.camera)
 

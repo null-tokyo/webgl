@@ -1,5 +1,6 @@
 const PrettierPlugin = require('prettier-webpack-plugin')
 const prettierConfig = require('./prettier.config')
+const webpack = require('webpack')
 
 const path = require('path');
 const srcDir = path.join(__dirname, '/src');
@@ -112,6 +113,9 @@ module.exports = {
         ]
     },
     plugins: [
-        new PrettierPlugin(prettierConfig)
+        new PrettierPlugin(prettierConfig),
+        new webpack.ProvidePlugin({
+            'THREE': require.resolve('three')
+        })
     ]
 };

@@ -41,6 +41,7 @@ module.exports = {
         base: srcPath,
         src: [
             `${srcPath}/images/**/*.+(jpg|png|gif|svg)`,
+            `${srcPath}/json/**/*`,
             `${srcPath}/index.html`
         ],
         dist: `${distPath}`

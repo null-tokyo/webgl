@@ -1,5 +1,8 @@
 import * as THREE from 'three'
 
+import vert from '../../glsl/modules/cube.vert'
+import frag from '../../glsl/modules/cube.frag'
+
 class Cubes {
     constructor(webgl) {
         this.webgl = webgl
@@ -17,7 +20,7 @@ class Cubes {
             10000
         )
         this.scene.add(this.camera)
-        this.camera.position.set(-1, 3, 1)
+        this.camera.position.set(0, 0, 1000)
         this.camera.lookAt(this.scene.position)
 
         this.renderTargetParameters = {
@@ -36,25 +39,36 @@ class Cubes {
         this.createCubes()
     }
     createCubes() {
-        this.geometory = new THREE.BoxGeometry(1, 1, 1)
-        let materials = [
-            new THREE.MeshBasicMaterial({ color: 0x1abc9c }),
-            new THREE.MeshBasicMaterial({ color: 0x3498db }),
-            new THREE.MeshBasicMaterial({ color: 0x9b59b6 }),
-            new THREE.MeshBasicMaterial({ color: 0xf1c40f }),
-            new THREE.MeshBasicMaterial({ color: 0xe74c3c }),
-            new THREE.MeshBasicMaterial({ color: 0x34495e }),
-        ]
+        this.uniforms = {
+            uTime: { type: 'f', value: 0 },
+            uDelta: { type: 'f', value: 0 },
+        }
+        var loader = new THREE.TextureLoader()
+        var texture = loader.load('json/text.svg')
 
-        this.material = new THREE.MeshFaceMaterial(materials)
+        // マテリアルに貼り付け
+        this.material = new THREE.MeshBasicMaterial({
+            map: texture,
+        })
+        this.geometory = new THREE.PlaneBufferGeometry(157 * 2, 11 * 2)
+        // this.material = new THREE.ShaderMaterial({
+        //     vertexShader: vert,
+        //     fragmentShader: frag,
+        //     uniforms: this.uniforms,
+        //     shading: THREE.FlatShading,
+        //     side: THREE.DoubleSide,
+        // })
         this.mesh = new THREE.Mesh(this.geometory, this.material)
         this.scene.add(this.mesh)
+    }
+    updateUniforms(time, delta) {
+        this.uniforms.uTime.value = time
+        this.uniforms.uDelta.value = delta
     }
     render(time, delta) {
         this.webgl.renderer.setRenderTarget(this.fbo)
 
-        this.mesh.rotation.x += 0.02
-        this.mesh.rotation.y += 0.02
+        this.updateUniforms(time, delta)
 
         this.webgl.renderer.render(this.scene, this.camera, this.fbo)
     }
