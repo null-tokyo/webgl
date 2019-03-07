@@ -1,13 +1,13 @@
 varying vec3 vPos;
 varying vec3 vColor;
+varying mat4 vNormalMat;
+varying vec3 vNormal;
+varying float vFogFactor;
 
-uniform float uTime;
+//varying vec3 normal;
+uniform vec3 uFogColor;
 
 void main () {
-    vec3 normal = normalize(cross(dFdx(vPos), dFdy(vPos)));
-    vec3 light = normalize(vec3(cos(uTime * 1.0) * 10.0, 0.0, 10.0));
-    float diffuse = clamp(dot(normal, light), 0.1, 1.0);
-    vec3 color = vColor * diffuse;
-
+    vec3 color = mix(uFogColor, vColor, vFogFactor);
     gl_FragColor = vec4(color, 1.0);
 }

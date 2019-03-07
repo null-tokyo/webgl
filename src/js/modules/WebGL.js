@@ -1,6 +1,8 @@
+import param from '../const/param'
 import * as THREE from 'three'
 import windowResize from '../util/windowResize'
 import Cubes from '../modules/Cubes'
+import Brend from '../modules/Brend'
 
 import vert from '../../glsl/modules/output.vert'
 import frag from '../../glsl/modules/output.frag'
@@ -31,7 +33,7 @@ class WebGL {
             alpha: true,
         })
         this.renderer.setSize(this.props.width, this.props.height)
-        this.renderer.setClearColor(0x000000, 0.0)
+        this.renderer.setClearColor(0xcccccc, 1.0)
         this.renderer.setPixelRatio(this.props.pixelRatio)
         this.$container.appendChild(this.renderer.domElement)
 
@@ -55,8 +57,12 @@ class WebGL {
         windowResize.register(this)
 
         this.cubes = new Cubes(this)
+        this.brend = new Brend(this)
 
         this.createPlane()
+
+        this.brend.uniforms.tDiffuse1 = this.cubes.fbo.texture
+        //this.brend.uniforms.tDiffuse2 = this.cubes.fbo.texture
 
         setTimeout(() => {
             this.render()
@@ -64,10 +70,26 @@ class WebGL {
     }
     createPlane() {
         this.uniforms = {
-            uTex: { type: 't', value: this.cubes.fbo.texture },
+            uTex: { type: 't', value: this.brend.texture },
             uTime: { type: 'f', value: 0 },
             uDelta: { type: 'f', value: 0 },
+            uNoiseForce: {
+                type: 'f',
+                value: param.cube.uNoiseForce.value,
+            },
+            uNoiseRange: {
+                type: 'f',
+                value: param.cube.uNoiseForce.value,
+            },
         }
+
+        param.cube.uNoiseForce.gui.onChange(val => {
+            this.uniforms.uNoiseForce.value = val
+        })
+        param.cube.uNoiseRange.gui.onChange(val => {
+            this.uniforms.uNoiseRange.value = val
+        })
+
         this.geometry = new THREE.PlaneBufferGeometry(
             this.width,
             this.height,
@@ -95,6 +117,7 @@ class WebGL {
     updateUniforms(time, delta) {
         this.uniforms.uTime.value = time
         this.uniforms.uDelta.value = delta
+        this.uniforms.uTex.value = this.brend.texture
     }
     _render() {
         this.renderer.clear()
@@ -102,11 +125,17 @@ class WebGL {
         let time = this.clock.elapsedTime
         let delta = this.clock.getDelta()
 
-        this.updateUniforms(time, delta)
-
         this.cubes.render(time, delta)
 
+        this.brend.uniforms.tDiffuse1.value = this.cubes.fbo.texture
+        this.brend.render(time, delta)
+
+        this.updateUniforms(time, delta)
+
         this.renderer.render(this.scene, this.camera)
+
+        // this.brend.uniforms.tDiffuse1.value = this.cubes.fbo.texture
+        // this.brend.render(time, delta)
 
         requestAnimationFrame(this.render)
     }

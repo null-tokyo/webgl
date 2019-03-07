@@ -1,0 +1,8 @@
+class FBO {
+    constructor() {
+
+    }
+    create() {
+        
+    }
+}
